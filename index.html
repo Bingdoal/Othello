@@ -1,0 +1,79 @@
+﻿<html>
+	<head>
+		<title>
+			黑白棋
+		</title>
+		<meta charset="utf-8"></meta>
+		<script>
+			
+		</script>
+	</head>
+	<body bgcolor="#bbb">
+		<canvas id = "cvs" width="450" height="450" style="background-color:#55AA00 ;"></canvas>
+		<canvas id = "white" width="50" height = "50" style="background-color:#55AA00 ;"></canvas>
+		<canvas id = "black" width="50" height = "50" style="background-color:#55AA00 ;"></canvas>
+		<p id="tips" style="font-size:18px;font-weight:bolder;"></p>
+		<p id="error_tips" style="color:#f00"></p>
+		<p style="font-size:18px;font-weight:bolder;">棋盤顏色:
+		<input id = "color"type="color" id="board_color" value="#55AA00" onchange="color_change()"></p>
+		
+		
+		<button type="button" onclick="AI_start()">人機大戰</button>
+		<button type="button" onclick="AI_cancel()">雙人對戰</button><br>
+		<button type="button" onclick="reset()">重來</button>
+		<script src="class/board.js"></script>
+		<script src="class/piece.js"></script>
+		<script src="class/tips_circle.js"></script>
+		<script src="js/basic_WB.js"></script>
+		<script src="js/AI_1.0.js"></script>
+		<script> 
+			var can = document.getElementById("cvs");
+			var ctx = can.getContext("2d");
+			var board = new Board();
+			var text_on_html = document.getElementById("error_tips");
+			var tips = document.getElementById("tips");
+			var have_piece_array = new Array(8), // -1黑子 1白子 0沒放
+			bc = document.getElementById("color"),
+			step=4,
+			end_check=-1,
+			who = -1; //-1是黑 1是白
+			var AI_vs_people = false,AI_id=1,delay=0;
+			window.onload=function(){
+				reset();
+				//捕抓點擊位置
+				can.addEventListener('mousedown',MouseDown,false);
+			}
+			function MouseDown(){
+				var place_x = Math.floor( ( event.offsetX + 25 ) / 50 )-1,
+					place_y = Math.floor( ( event.offsetY + 25 ) / 50 )-1;
+				if(place_piece(place_x,place_y,have_piece_array)){
+					if(AI_vs_people && AI_id==who && end_check==-1){
+						can.removeEventListener('mousedown',MouseDown,false);
+						setTimeout(function(){run_AI(step);},delay);
+					}
+				}
+			}
+			function color_change(){
+				var white_can = document.getElementById("white");
+				var black_can = document.getElementById("black");
+				white_can.style = "background-color:"+bc.value;
+				black_can.style = "background-color:"+bc.value;
+				can.style = "background-color:"+bc.value;
+			}
+			function AI_start(){
+				reset();
+				AI_vs_people = true;
+				if(!confirm("請問是否先手執黑子?")){
+					AI_id = -1;
+					run_AI(who,step,have_piece_array);
+				}else{
+					AI_id = 1;
+				}
+			}
+			function AI_cancel(){
+				reset();
+				AI_vs_people = false;
+			}
+		</script> 
+	 </body>
+</html>
